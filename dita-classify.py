@@ -38,7 +38,7 @@ def classify (path_name):
         print ("OTHER", path_name)
 
 
-def configure (argv):
+def configure ():
     mimetypes.init ()
 
     parser = argparse.ArgumentParser (description = "Classify DITA files into maps, topics, and others.")
@@ -48,7 +48,7 @@ def configure (argv):
 
     parser.add_argument ("path_name", nargs = "*", help = "paths to files")
 
-    arguments = parser.parse_args (argv)
+    arguments = parser.parse_args ()
 
     if arguments.catalog:
         catalog_path = os.path.abspath (arguments.catalog)
@@ -75,11 +75,15 @@ def configure (argv):
 
 
 def visit (path_name, visitor):
-    for ( root, _, file_names ) in os.walk (path_name):
-        for file_name in file_names:
-            visitor (os.path.join (root, file_name))
+    if os.path.isfile (path_name):
+        visitor (path_name)
+
+    else:
+        for ( root, _, file_names ) in os.walk (path_name):
+            for file_name in file_names:
+                visitor (os.path.join (root, file_name))
 
 
 if __name__ == "__main__":
-    for path_name in configure (sys.argv):
+    for path_name in configure ():
         visit (path_name, classify)
