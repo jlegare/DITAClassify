@@ -12,7 +12,7 @@ def classify (path_name):
     def types_of (dita_class):
         return filter (lambda s : s != "", dita_class.split (" "))
 
-    ( mime_type, encoding ) = mimetypes.guess_type (path_name)
+    ( mime_type, _ ) = mimetypes.guess_type (path_name)
 
     if mime_type == "application/xml":
         parser = etree.XMLParser (attribute_defaults = True, dtd_validation = True)
