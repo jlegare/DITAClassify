@@ -4,6 +4,7 @@ import sys
 
 import argparse
 import mimetypes # libmagic is not available on macOS without installing Brew.
+import pprint
 
 from lxml import etree
 
@@ -23,19 +24,19 @@ def classify (path_name):
             types = types_of (root.attrib["class"])
 
             if "topic/topic" in types:
-                print ("TOPIC", path_name)
+                return ( "TOPIC", path_name )
 
             elif "map/map" in types:
-                print ("MAP  ", path_name)
+                return ( "MAP  ", path_name )
 
             else:
-                print ("OTHER", path_name)
+                return ( "OTHER", path_name )
 
         else:
-            print ("OTHER", path_name)
+            return ( "OTHER", path_name )
 
     else:
-        print ("OTHER", path_name)
+        return ( "OTHER", path_name )
 
 
 def configure ():
@@ -76,14 +77,16 @@ def configure ():
 
 def visit (path_name, visitor):
     if os.path.isfile (path_name):
-        visitor (path_name)
+        yield (visitor (path_name))
 
     else:
         for ( root, _, file_names ) in os.walk (path_name):
             for file_name in file_names:
-                visitor (os.path.join (root, file_name))
+                yield (visitor (os.path.join (root, file_name)))
 
 
 if __name__ == "__main__":
+    pp = pprint.PrettyPrinter ()
+
     for path_name in configure ():
-        visit (path_name, classify)
+        pp.pprint ({ path_name: kind for ( kind, path_name ) in visit (path_name, classify) })
